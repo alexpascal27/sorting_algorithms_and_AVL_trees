@@ -1,8 +1,24 @@
 public class Sorter
 {
-    public static Contact[] contacts;
+    public static Contact[] contactsArray;
 
-    public static Contact[] selectionSort(Contact[] contacts) {
+    public static void selectionSort(Contact[] contacts) {
+        cursiveSelectionSort(contacts);
+    }
+
+    public static void insertionSort(Contact[] contacts) {
+        cursiveInsertionSort(contacts);
+    }
+
+    public static void quickSort(Contact[] contacts) {
+        quickSort(contacts, 0, contacts.length-1);
+    }
+
+    public static void mergeSort(Contact[] contacts) {
+        // TODO Q5
+    }
+
+    public static void cursiveSelectionSort(Contact[] contacts) {
         // TODO Q2
         int n = contacts.length;
         for(int i = 0; i < n; i++)
@@ -20,12 +36,11 @@ public class Sorter
                 }
             }
             // Swap
-            contacts = swapContacts(contacts, i, currentLowestValueIndex);
+            swapContacts(contacts, i, currentLowestValueIndex);
         }
-        return contacts;
     }
 
-    public static Contact[] insertionSort(Contact[] contacts) {
+    public static void cursiveInsertionSort(Contact[] contacts) {
         // TODO Q3
         int n  = contacts.length;
         for(int i = 0; i < n-1; i++)
@@ -33,13 +48,13 @@ public class Sorter
             // Check if the current element is less than the next
             if(contacts[i].compareTo(contacts[i+1]) > 0)
             {
-                contacts = swapContacts(contacts, i, i+1);
+                swapContacts(contacts, i, i+1);
                 for(int j = i; j > 0; j--)
                 {
                     // If the previous contact is 'greater' than the current
                     if(contacts[j].compareTo(contacts[j-1]) < 0)
                     {
-                        contacts = swapContacts(contacts, j, j-1);
+                        swapContacts(contacts, j, j-1);
                     }
                     else
                     {
@@ -48,30 +63,29 @@ public class Sorter
                 }
             }
         }
-        return contacts;
     }
 
-    public static void quickSort( int low, int high) {
+    public static void quickSort( Contact[] contacts, int low, int high) {
         // TODO Q4
         if(high > low)
         {
-            int pivot = partition(low, high);
-            quickSort(low, pivot-1);
-            quickSort(pivot + 1, high);
+            int pivot = partition(contacts, low, high);
+            quickSort(contacts, low, pivot-1);
+            quickSort(contacts, pivot + 1, high);
         }
     }
 
-    private static int partition(int low, int high)
+    private static int partition(Contact[] contacts, int low, int high)
     {
         int pivotIndex = low;
         Contact pivot = contacts[pivotIndex];
         do {
             while( low <= high && !(contacts[low].compareTo(pivot) > 0)) low++;
             while(contacts[high].compareTo(pivot) > 0) high--;
-            if(low<high) contacts = swapContacts(contacts, low, high);
+            if(low<high) swapContacts(contacts, low, high);
         }while(low < high);
 
-        contacts = swapContacts(contacts, pivotIndex, high);
+        swapContacts(contacts, pivotIndex, high);
         return high;
     }
 
@@ -130,13 +144,12 @@ public class Sorter
         return mergedArray;
     }
 
-    private static Contact[] swapContacts(Contact[] contacts, int firstElementIndex, int secondElementIndex)
+    private static void swapContacts(Contact[] contacts, int firstElementIndex, int secondElementIndex)
     {
         // Store the first element temporarily so we can assign it to the second element value
         Contact tempContact = contacts[firstElementIndex];
         contacts[firstElementIndex] = contacts[secondElementIndex];
         contacts[secondElementIndex] = tempContact;
-        return contacts;
     }
 
     public static void print(Contact[] contacts)

@@ -17,8 +17,8 @@ public class Test
         //testSelectionSort(contactArray);
         //testInsertionSort(contactArray);
         //testQuickSort(contactArray);
-        //testMergeSort(contactArray);
-        testAVLTree(treeArray);
+        testMergeSort(contactArray);
+        //testAVLTree(treeArray);
 
     }
 
@@ -27,6 +27,7 @@ public class Test
         AVLTree tree = new AVLTree(array);
         tree.createTestTree();
         tree.print();
+
         /*
         System.out.println(tree.inTree("1"));
         System.out.println(tree.inTree("7"));
@@ -55,26 +56,25 @@ public class Test
 
     private static void testSelectionSort(Contact[] array)
     {
-        array = Sorter.selectionSort(array);
+        Sorter.selectionSort(array);
         Sorter.print(array);
     }
 
     private static void testInsertionSort(Contact[] array)
     {
-        array = Sorter.insertionSort(array);
+        Sorter.insertionSort(array);
         Sorter.print(array);
     }
 
     private static void testQuickSort(Contact[] array)
     {
-        Sorter.contacts = array;
-        Sorter.quickSort(0,array.length-1);
-        Sorter.print(Sorter.contacts);
+        Sorter.quickSort(array);
+        Sorter.print(array);
     }
 
     private static void testMergeSort(Contact[] array)
     {
-        array = Sorter.mergeSort(array, 0,array.length-1);
+        Sorter.mergeSort(array, 0,array.length-1);
         Sorter.print(array);
     }
 }

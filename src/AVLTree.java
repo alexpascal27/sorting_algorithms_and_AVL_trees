@@ -46,95 +46,64 @@ class AVLTree {
 
  */
 
-  private void singleRotation(AVLTreeNode node, boolean clockwise)
+  private AVLTreeNode singleRotation(AVLTreeNode node, boolean clockwise)
   {
-    if(node==null) return;
+    if(node==null) return null;
 
-    if(clockwise) clockwiseSingleRotation(node);
-    else anticlockwiseSingleRotation(node);
+    if(clockwise) return clockwiseSingleRotation(node);
+    else return anticlockwiseSingleRotation(node);
   }
 
-  private void clockwiseSingleRotation(AVLTreeNode node)
+  private AVLTreeNode clockwiseSingleRotation(AVLTreeNode node)
   {
+    // Checking if the node we are rotating around is the root (as we will need to update it later)
+    boolean rotatingAboutOrigin = node.value.equals(root.value);
+    System.out.println("clockwiseSingleRotation on:" + node.value);
     AVLTreeNode leftSubtreeNode = node.left;
-    if(leftSubtreeNode == null) return;
-    AVLTreeNode rightLeftSubNode = leftSubtreeNode.right;
+    // No rotation happens, return node
+    if(leftSubtreeNode == null) return node;
+
+    node.left = leftSubtreeNode.right;
+    node = updateHeight(node);
     leftSubtreeNode.right = node;
-    AVLTreeNode previousNode = node.above;
-    node.above = leftSubtreeNode;
-    node.left = rightLeftSubNode;
-    rightLeftSubNode.above = node;
 
-    // If there is a node above
-    if(previousNode!=null)
-    {
-      boolean isCurrentRightOfPrevious;
-      if(previousNode.right != null)
-      {
-        isCurrentRightOfPrevious = previousNode.right.value.equals(node.value);
-      }
-      else
-      {
-        isCurrentRightOfPrevious = !previousNode.left.value.equals(node.value);
-      }
 
-      if(isCurrentRightOfPrevious)
-      {
-        // New root
-        previousNode.right = leftSubtreeNode;
-      }
-      else
-      {
-        // New root
-        previousNode.left = leftSubtreeNode;
-      }
-      leftSubtreeNode.above = previousNode;
-    }
-    else
+    if(rotatingAboutOrigin)
     {
       root = leftSubtreeNode;
     }
+    System.out.println("After rotation on:" + node.value);
+
+    // Updating heights
+    leftSubtreeNode = updateHeight(leftSubtreeNode);
+
+    return leftSubtreeNode;
   }
 
-  private void anticlockwiseSingleRotation(AVLTreeNode node)
+  private AVLTreeNode anticlockwiseSingleRotation(AVLTreeNode node)
   {
+    // Checking if the node we are rotating around is the root (as we will need to update it later)
     boolean rotatingAboutOrigin = node.value.equals(root.value);
     System.out.println("anticlockwiseSingleRotation on:" + node.value);
     AVLTreeNode rightSubtreeNode = node.right;
-    if(rightSubtreeNode == null) return;
-    AVLTreeNode leftRightSubNode = rightSubtreeNode.left;
-    rightSubtreeNode.left = node;
-    AVLTreeNode previousNode = node.above;
-    node.above = rightSubtreeNode;
-    node.right = leftRightSubNode;
-    node.left = null;
-    rightSubtreeNode.above = previousNode;
-    // If there is a node above
-    if(previousNode!=null)
-    {
-      System.out.println("Previous Node Value:" + previousNode.value);
-      boolean isCurrentRightOfPrevious;
-      if (previousNode.right != null) {
-        isCurrentRightOfPrevious = previousNode.right.value.equals(node.value);
-      } else {
-        isCurrentRightOfPrevious = !previousNode.left.value.equals(node.value);
-      }
+    // No rotation, return node
+    if(rightSubtreeNode == null) return node;
 
-      if (isCurrentRightOfPrevious) {
-        // New root
-        previousNode.right = rightSubtreeNode;
-      } else {
-        // New root
-        previousNode.left = rightSubtreeNode;
-      }
-    }
+    node.right = rightSubtreeNode.left;
+    // Make sure the changes to the node positions are reflected in the height values
+    node = updateHeight(node);
+    rightSubtreeNode.left = node;
+
     if(rotatingAboutOrigin)
     {
       root = rightSubtreeNode;
     }
     System.out.println("After rotation on:" + node.value);
-    node.updateBalance();
-    print();
+
+    // Updating heights
+    rightSubtreeNode = updateHeight(rightSubtreeNode);
+
+    return rightSubtreeNode;
   }
 
   public void print() {
@@ -185,50 +154,57 @@ class AVLTree {
     return false;
   }
 
-  private void updateTreeFromNode(AVLTreeNode node)
+  private AVLTreeNode updateHeight(AVLTreeNode node)
   {
     // If node is null
     if(node == null) throw new NullPointerException();
 
-    while(node != null)
+    int leftSubtreeHeight,rightSubtreeHeight;
+
+    // Try to get the height of left subtree
+    try
     {
-      node.updateBalance();
-      //checkBalanceAndRotate(node);
-      node = node.above;
+      leftSubtreeHeight = node.left.height;
     }
+    catch(NullPointerException e)
+    {
+      leftSubtreeHeight = 1;
+    }
+
+    // Try to get the height of right subtree
+    try
+    {
+      rightSubtreeHeight = node.right.height;
+    }
+    catch(NullPointerException e)
+    {
+      rightSubtreeHeight = 1;
+    }
+
+    // Update the height- its the max of either the left or right subtree
+    node.height = 1 + Math.max(leftSubtreeHeight, rightSubtreeHeight);
+    return node;
   }
 
-  private void checkBalanceAndRotate(AVLTreeNode node)
+  public void insert(String e)
   {
-    System.out.println("Checking balance for node with value:" + node.value +" it has balance:" + node.balance);
-    // Right imbalance then anticlockwise rotation
-    if(node.balance > 1)
-    {
-      singleRotation(node, false);
-    }
-    // Left imbalance then clockwise rotation
-    if(node.balance < -1)
-    {
-      singleRotation(node, true);
-    }
-  }
-
-  public void insert(String e) {
-    // TODO implement this
+    // If no root add one
     if(root == null)
     {
       root = new AVLTreeNode(e);
-      root.above = null;
     }
+    // If root already exists
     else
     {
       // Find a suitable place to add the new node
       AVLTreeNode node = root;
       AVLTreeNode previousNode = null;
+      AVLTreeNode currentNode = null;
       while(node!=null)
       {
         boolean isNewNodeFirst = e.compareTo(node.value) < 0;
-        previousNode = node;
+        previousNode = currentNode;
+        currentNode = node;
         if(isNewNodeFirst)
         {
           node = node.left;
@@ -239,19 +215,70 @@ class AVLTree {
         }
       }
 
-      boolean isNewNodeFirst = e.compareTo(previousNode.value) < 0;
+      boolean isNewNodeFirst = e.compareTo(currentNode.value) < 0;
       AVLTreeNode newNode = new AVLTreeNode(e);
-      newNode.above = previousNode;
+
+      // Before we insert we need to check if the insertion will cause an imbalance
+      int balance = getBalance(previousNode);
+
+      // What is the balance going to be after insertion
       if(isNewNodeFirst)
       {
-        previousNode.left = newNode;
-
+        balance--;
+        currentNode.left = newNode;
       }
       else
       {
-        previousNode.right = newNode;
+        balance++;
+        currentNode.right = newNode;
       }
-      updateTreeFromNode(previousNode);
+
+      print();
+
+      previousNode = adjustTree(previousNode, balance);
     }
   }
+
+  private AVLTreeNode adjustTree(AVLTreeNode node, int balance)
+  {
+    // If balanced don't need to perform further operations
+    if(balance==0 || balance==1 || balance==-1) return node;
+
+    if(balance > 1)
+    {
+      node = anticlockwiseSingleRotation(node);
+    }
+    else
+    {
+      node = clockwiseSingleRotation(node);
+    }
+    return node;
+  }
+
+  private int getBalance(AVLTreeNode node)
+  {
+    int leftSubtreeHeight;
+    int rightSubtreeHeight;
+
+    try
+    {
+      leftSubtreeHeight = node.left.height;
+    }
+    catch(NullPointerException e)
+    {
+      leftSubtreeHeight = 0;
+    }
+
+    try
+    {
+      rightSubtreeHeight = node.right.height;
+    }
+    catch(NullPointerException e)
+    {
+      rightSubtreeHeight = 0;
+    }
+    return rightSubtreeHeight - leftSubtreeHeight;
+  }
+
+
 }
