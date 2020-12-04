@@ -74,7 +74,7 @@ public class Test
 
     private static void testMergeSort(Contact[] array)
     {
-        Sorter.mergeSort(array, 0,array.length-1);
+        Sorter.mergeSort(array);
         Sorter.print(array);
     }
 }

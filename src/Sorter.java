@@ -1,6 +1,5 @@
 public class Sorter
 {
-    public static Contact[] contactsArray;
 
     public static void selectionSort(Contact[] contacts) {
         cursiveSelectionSort(contacts);
@@ -14,8 +13,9 @@ public class Sorter
         quickSort(contacts, 0, contacts.length-1);
     }
 
-    public static void mergeSort(Contact[] contacts) {
-        // TODO Q5
+    public static void mergeSort(Contact[] contacts)
+    {
+        recursiveMergeSort(contacts, 0, contacts.length-1);
     }
 
     public static void cursiveSelectionSort(Contact[] contacts) {
@@ -89,38 +89,46 @@ public class Sorter
         return high;
     }
 
-    public static Contact[] mergeSort(Contact[] contacts, int low, int high) {
-        // TODO Q5
+    public static void recursiveMergeSort(Contact[] contacts, int low, int high) {
+
         // If array has one item then return the item
-        if(low==high) return new Contact[]{contacts[low]};
+        if(low>=high) return;
         // Split array
         int middle_index = low + (high-low)/2;
         // Call merge sort on the left half
-        Contact[] leftHalf = mergeSort(contacts, low, middle_index);
+        recursiveMergeSort(contacts, low, middle_index);
         // Call merge sort on the right half
-        Contact[] rightHalf = mergeSort(contacts, middle_index+1, high);
+        recursiveMergeSort(contacts, middle_index+1, high);
         // Merge halves together
-        contacts = merge(leftHalf, low, middle_index, rightHalf, middle_index+1, high);
-
-        return contacts;
+        merge(contacts, low, middle_index, high);
     }
 
-    private static Contact[] merge(Contact[] leftHalf, int leftLow, int leftHigh, Contact[] rightHalf, int rightLow, int rightHigh)
+    private static void merge(Contact[] contacts, int low, int mid, int high)
     {
-        int leftLength = leftHigh - leftLow + 1;
-        int rightLength = rightHigh - rightLow + 1;
-        Contact[] mergedArray = new Contact[leftLength + rightLength];
-        int leftCounter = 0; int rightCounter = 0; int counter = 0;
+        // low, middle, middle+1, high
+        int leftLength = mid - low + 1;
+        int rightLow = mid+1;
+        int rightLength = high - rightLow + 1;
+
+        // Create a temporary left and right array
+        Contact[] leftArray = new Contact[leftLength];
+        Contact[] rightArray = new Contact[rightLength];
+
+        // Initialise the left and right arrays
+        System.arraycopy(contacts, low, leftArray, 0, leftLength);
+        System.arraycopy(contacts, rightLow, rightArray, 0, rightLength);
+
+        int leftCounter = 0; int rightCounter = 0; int counter = low;
         while(leftCounter < leftLength && rightCounter < rightLength)
         {
-            if(leftHalf[leftCounter].compareTo(rightHalf[rightCounter]) <= 0)
+            if(leftArray[leftCounter].compareTo(rightArray[rightCounter]) <= 0)
             {
-                mergedArray[counter] = leftHalf[leftCounter];
+                contacts[counter] = leftArray[leftCounter];
                 leftCounter++;
             }
             else
             {
-                mergedArray[counter] = rightHalf[rightCounter];
+                contacts[counter] = rightArray[rightCounter];
                 rightCounter++;
             }
             counter++;
@@ -129,19 +137,17 @@ public class Sorter
         // i.e. make sure that no elements are left unadded in either the right or left array
         while (leftCounter < leftLength)
         {
-            mergedArray[counter] = leftHalf[leftCounter];
+            contacts[counter] = leftArray[leftCounter];
             leftCounter++;
             counter++;
         }
 
         while (rightCounter < rightLength)
         {
-            mergedArray[counter] = rightHalf[rightCounter];
+            contacts[counter] = rightArray[rightCounter];
             rightCounter++;
             counter++;
         }
-
-        return mergedArray;
     }
 
     private static void swapContacts(Contact[] contacts, int firstElementIndex, int secondElementIndex)
