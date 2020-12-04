@@ -17,8 +17,8 @@ public class Test
         //testSelectionSort(contactArray);
         //testInsertionSort(contactArray);
         //testQuickSort(contactArray);
-        testMergeSort(contactArray);
-        //testAVLTree(treeArray);
+        //testMergeSort(contactArray);
+        testAVLTree(treeArray);
 
     }
 
@@ -28,14 +28,14 @@ public class Test
         tree.createTestTree();
         tree.print();
 
-        /*
+
         System.out.println(tree.inTree("1"));
         System.out.println(tree.inTree("7"));
         System.out.println(tree.inTree("3"));
         System.out.println(tree.inTree("5"));
         System.out.println(tree.inTree("8"));
         System.out.println(tree.inTree("2"));
-         */
+
     }
 
     private static void testContact(Contact[] contactArray)

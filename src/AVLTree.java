@@ -1,10 +1,11 @@
 class AVLTree {
-  AVLTreeNode root = null;
+  AVLTreeNode root;
   // Note: you may define other variables here
   String[] initialValues;
 
   public AVLTree(String[] array) {
     // TODO implement this
+    root = null;
     initialValues = array;
   }
 
@@ -14,57 +15,19 @@ class AVLTree {
       insert(initialValue);
     }
   }
-  /*
-  private AVLTreeNode findNode()
-  {
-    AVLTreeNode previousNode = null;
-    boolean isCurrentRightOfPrevious = false;
-    AVLTreeNode currentNode = root;
-    while(currentNode != null)
-    {
-      int compareValue = node.value.compareTo(currentNode.value);
-      // Found the node we are looking for
-      if(compareValue==0) break;
-        // Current node has a greater value than the node we are looking for
-      else if(compareValue > 0)
-      {
-        // Go left
-        previousNode = currentNode;
-        isCurrentRightOfPrevious = false;
-        currentNode = currentNode.left;
-      }
-      // Current node has a smaller value than the node we are looking for
-      else
-      {
-        // go right subtree
-        previousNode = currentNode;
-        isCurrentRightOfPrevious = true;
-        currentNode = currentNode.right;
-      }
-    }
-  }
 
- */
-
-  private AVLTreeNode singleRotation(AVLTreeNode node, boolean clockwise)
-  {
-    if(node==null) return null;
-
-    if(clockwise) return clockwiseSingleRotation(node);
-    else return anticlockwiseSingleRotation(node);
-  }
-
-  private AVLTreeNode clockwiseSingleRotation(AVLTreeNode node)
+  private void clockwiseSingleRotation(AVLTreeNode node)
   {
     // Checking if the node we are rotating around is the root (as we will need to update it later)
     boolean rotatingAboutOrigin = node.value.equals(root.value);
     System.out.println("clockwiseSingleRotation on:" + node.value);
     AVLTreeNode leftSubtreeNode = node.left;
     // No rotation happens, return node
-    if(leftSubtreeNode == null) return node;
+    if(leftSubtreeNode == null) return;
 
     node.left = leftSubtreeNode.right;
-    node = updateHeight(node);
+    updateHeight(node);
+    node.height--;
     leftSubtreeNode.right = node;
 
 
@@ -75,23 +38,23 @@ class AVLTree {
     System.out.println("After rotation on:" + node.value);
 
     // Updating heights
-    leftSubtreeNode = updateHeight(leftSubtreeNode);
-
-    return leftSubtreeNode;
+    updateHeight(leftSubtreeNode);
+    leftSubtreeNode.height++;
   }
 
-  private AVLTreeNode anticlockwiseSingleRotation(AVLTreeNode node)
+  private void anticlockwiseSingleRotation(AVLTreeNode node)
   {
     // Checking if the node we are rotating around is the root (as we will need to update it later)
     boolean rotatingAboutOrigin = node.value.equals(root.value);
     System.out.println("anticlockwiseSingleRotation on:" + node.value);
     AVLTreeNode rightSubtreeNode = node.right;
     // No rotation, return node
-    if(rightSubtreeNode == null) return node;
+    if(rightSubtreeNode == null) return;
 
     node.right = rightSubtreeNode.left;
     // Make sure the changes to the node positions are reflected in the height values
-    node = updateHeight(node);
+    updateHeight(node);
+    node.height--;
     rightSubtreeNode.left = node;
 
     if(rotatingAboutOrigin)
@@ -101,9 +64,8 @@ class AVLTree {
     System.out.println("After rotation on:" + node.value);
 
     // Updating heights
-    rightSubtreeNode = updateHeight(rightSubtreeNode);
-
-    return rightSubtreeNode;
+    updateHeight(rightSubtreeNode);
+    rightSubtreeNode.height++;
   }
 
   public void print() {
@@ -154,7 +116,7 @@ class AVLTree {
     return false;
   }
 
-  private AVLTreeNode updateHeight(AVLTreeNode node)
+  private void updateHeight(AVLTreeNode node)
   {
     // If node is null
     if(node == null) throw new NullPointerException();
@@ -183,7 +145,6 @@ class AVLTree {
 
     // Update the height- its the max of either the left or right subtree
     node.height = 1 + Math.max(leftSubtreeHeight, rightSubtreeHeight);
-    return node;
   }
 
   public void insert(String e)
@@ -233,26 +194,30 @@ class AVLTree {
         currentNode.right = newNode;
       }
 
-      print();
-
-      previousNode = adjustTree(previousNode, balance);
+      /*
+        THIS IS THE CODE THAT SHOULD ENABLE QUESTION 6 PART C
+        IT, HOWEVER DOES NOT WORK
+        HERE ARE MY REASONS WHY:
+          * the pointers are not correct, after a rotation around a non-root node, that rotation isn't made to the tree if we traverse the root
+          * the heights are not updated appropriately
+       */
+      //adjustTree(previousNode, balance);
     }
   }
 
-  private AVLTreeNode adjustTree(AVLTreeNode node, int balance)
+  private void adjustTree(AVLTreeNode node, int balance)
   {
     // If balanced don't need to perform further operations
-    if(balance==0 || balance==1 || balance==-1) return node;
+    if(balance==0 || balance==1 || balance==-1) return;
 
     if(balance > 1)
     {
-      node = anticlockwiseSingleRotation(node);
+      anticlockwiseSingleRotation(node);
     }
     else
     {
-      node = clockwiseSingleRotation(node);
+      clockwiseSingleRotation(node);
     }
-    return node;
   }
 
   private int getBalance(AVLTreeNode node)
